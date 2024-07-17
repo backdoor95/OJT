@@ -1,5 +1,5 @@
 # OJT
-OJT repository
+On Job Training repository
 
 1. CentOs8 Linux
 2. Python
