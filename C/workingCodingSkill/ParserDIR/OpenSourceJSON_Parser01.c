@@ -70,7 +70,7 @@ void ReadJsonAndSaveStructure(JsonMessage *j)
     int repeat_cnt = (int)json_object_get_number(rootObject, "repeat");
     int thread_num = (int)json_object_get_number(rootObject, "thread_num");
 
-    printf("repeat: %d\n", repeat);
+    printf("repeat: %d\n", repeat_cnt);
     printf("thread_num: %d\n", thread_num);
  
 
@@ -78,7 +78,7 @@ void ReadJsonAndSaveStructure(JsonMessage *j)
     {
         printf("ERROR\n"); 
         json_value_free(rootValue);
-        exit(1)
+        exit(1);
     }
 
    // thread에서 배열 가져오기
@@ -91,7 +91,7 @@ void ReadJsonAndSaveStructure(JsonMessage *j)
     }
 
     //===================== 1. 구조체에 저장========================//
-    j->repeat_cnt = repeat;
+    j->repeat_cnt = repeat_cnt;
     j->thread_num = thread_num;
     j->threadList = (Thread*)malloc(sizeof(Thread)*thread_num);
 
@@ -114,14 +114,14 @@ void ReadJsonAndSaveStructure(JsonMessage *j)
             // strcpy(dest, src) 함수 사용
             // 검증 필요함. 
             int len = strlen(name);
-            j->threadList[i]->name = (char*)malloc(sizeof(char)*len+1);
-            strcpy(j->threadList[i]->name, name);
+            j->threadList[i].name = (char*)malloc(sizeof(char)*len+1);
+            strcpy(j->threadList[i].name, name);
 
         }
     }
 
     // 1. 구조체에 저장
-    j->repeat_cnt = repeat;
+    j->repeat_cnt = repeat_cnt;
     j->thread_num = thread_num;
     j->threadList = (Thread*)malloc(sizeof(Thread)*thread_num);
 	

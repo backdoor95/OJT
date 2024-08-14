@@ -14,13 +14,14 @@ int main()
 	unsigned long ul = 123455;
 
 	float f = 1.234;
-	unsigned float uf = 1.234443;
+	 float uf = 1.234443;
 
 	double d = 1.23342;
-	unsigned double ud = 1.24;
+	 double ud = 1.24;
 
 	int *ip = &i;
 	void *vPtr;
 	int x= 10;
 	vPtr = &x;
 
+}
