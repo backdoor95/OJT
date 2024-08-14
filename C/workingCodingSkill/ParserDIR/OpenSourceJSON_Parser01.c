@@ -1,7 +1,6 @@
-#include<stdio.h>
+#include"parson.h"
 #include<time.h>
 #include<pthread.h>
-#include"./parson.h"
 
 
 
@@ -38,26 +37,30 @@ typedef struct _REPORT
 
 }Report;
 
-char* RandString()
+char* RandomString();
+void ThreadEx(JsonMessage* j);
+void ReadJsonAndSaveStructure(JsonMessage *j);
+void ReadStructureMakeJsonFile(JsonMessage *j);
+void ThreadRuntimeChecker();
+int main(void)
 {
-	// random 문자열의 길이
-	int size = rand()%100+1;
-    char* Prs = (char*)malloc(size+1);
-	
-	for(int i=0;i<size;i++)
-	{
-        Prs[i]=charSet[rand()%charSetLen];
+    srand((unsigned int)time(NULL));
+    JsonMessage jm;
 
-    }
-    Prs[size] = '\0';
-    return Prs;
+    ThreadEx(&jm);
+    return 0;
 }
 
 
+void ExeFunction(JsonMessage* j)
+{
+    ReadJsonAndSaveStructure(j);
+}
+
 void ReadJsonAndSaveStructure(JsonMessage *j)
 {
-    charSetLen = (int)strlen(charSet);
-    printf("charSet의 길이는 : %d\n", charSetLen);
+    // charSetLen = (int)strlen(charSet);
+    // printf("charSet의 길이는 : %d\n", charSetLen);
 
     JSON_Value *rootValue;
     JSON_Object *rootObject;
@@ -115,25 +118,30 @@ void ReadJsonAndSaveStructure(JsonMessage *j)
             // 검증 필요함. 
             int len = strlen(name);
             j->threadList[i].name = (char*)malloc(sizeof(char)*len+1);
-            strcpy(j->threadList[i].name, name);
+            strcpy(j->threadList[i].name, name);// Thread 이름을 저장.
 
         }
-    }
 
-    // 1. 구조체에 저장
-    j->repeat_cnt = repeat_cnt;
-    j->thread_num = thread_num;
-    j->threadList = (Thread*)malloc(sizeof(Thread)*thread_num);
+    }
 	
 }
 
-
-
-int main(void)
+char* RandString()
 {
-    srand((unsigned int)time(NULL));
-    
+	// random 문자열의 길이
+	int size = rand()%100+1;
+    char* Prs = (char*)malloc(size+1);
+	
+	for(int i=0;i<size;i++)
+	{
+        Prs[i]=charSet[rand()%charSetLen];
 
+    }
+    Prs[size] = '\0';
+    return Prs;
+}
 
-    return 0;
+void ThreadRuntimeChecker()
+{
+    return;
 }
