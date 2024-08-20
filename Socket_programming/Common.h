@@ -6,7 +6,8 @@
 #include<sys/socket.h>// socket()
 #include<unistd.h>// close()
 #include<netinet/in.h>
-
+#include<arpa/inet.h> // htons, htonl, ntohs, ntohl , inet_pton() 
+#include<netdb.h>
 
 
 typedef int SOCKET;

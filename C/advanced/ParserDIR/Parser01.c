@@ -66,7 +66,7 @@ void create_threads(json_t* jt)
     int repeat_cnt = jt->thread_cnt;
 
     // thread 메모리 할당.
-    pthread_t* threads = (pthread_t*)malloc(sizeof(pthread_t) * task_count);
+    pthread_t* threads = (pthread_t*)malloc(sizeof(pthread_t) * thread_cnt);
     for(int i = 0; i < thread_cnt ; i++)
     {
         if(pthread_create(&threads[i], NULL, thread_task, (void*)&repeat_cnt))
@@ -80,8 +80,9 @@ void create_threads(json_t* jt)
     {
         pthread_join(threads[i], NULL);
     }   
+    // 메모리 해제 
     free(threads);
-
+    
 }
 
 // json에서 받은 설정값 대로 작동.
@@ -153,6 +154,9 @@ void json_to_structure(json_t* jt)
             printf("Error : Thread 배열의 인덱스%zu번에서 name의 value가 NULL입니다.\n", i);
             exit(1);
         } else {
+            // 1. repeat 횟수 저장.
+            j->threadList[i].repeat_cnt = repeat_cnt;
+            // 2. thread 이름저장
             printf("Thread %zu name: %s\n", i, name);
             // strcpy(dest, src) 함수 사용
             // 검증 필요함. 
@@ -168,7 +172,7 @@ void json_to_structure(json_t* jt)
 }
 
 // 여기서 json을 토대로 만든 구조체를 json 파일로 생성
-void structure_to_json(JsonMessage *j)
+void structure_to_json(json_t* j)
 {
 
 }
@@ -177,7 +181,9 @@ void structure_to_json(JsonMessage *j)
 void generate_random_string(char* str)
 {
     // random 문자열의 길이는 랜덤으로 정해짐.
-    int size = rand()%101+1;
+    int size = rand()%100+1;// [0~99]+1 = [1~100]
+
+    // 뒤에 NULL 값을 넣어야하므로 +1를 해준다.
     char* str = (char*)malloc(size+1);
 
     for(int i=0;i<size;i++)
