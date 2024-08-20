@@ -1,0 +1,16 @@
+{
+    "repeat": 10,
+    "thread_num": 3,
+    "thread": [
+        {
+            "name": "###sub_thread0001###"
+        },
+        {
+            "name": "@@@sub_thread0002@@@"
+        },
+        {
+            "name": "!!!sub_thread0003!!!"
+        }
+ 
+    ]
+}
