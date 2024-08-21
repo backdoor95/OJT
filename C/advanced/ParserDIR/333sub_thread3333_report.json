@@ -1,15 +1,35 @@
 {
     "repeat_cnt": 10,
     "repeat": [
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {}
+        {
+            "random_string": "uGzgVEBkNGkAquwlEyZAUFYylRUzHnzDwAJreNeRtosJ"
+        },
+        {
+            "random_string": "BEJbMvdtoTpqkMMLqYMFtsAvskJsHvmLJaMdRDufwmwGAKTQIhXEzxBtjlMRiYCRYQxPttxPFvX"
+        },
+        {
+            "random_string": "JIwUENvydpPnMDOepkUNkPdrXhwUYtwIb"
+        },
+        {
+            "random_string": "ypMy"
+        },
+        {
+            "random_string": "GTvyZIezYVllXnFYAIALGkBkoECtlipRbmpDUWcutPGTclRewUrcGTmU"
+        },
+        {
+            "random_string": "BZvqTuGIEHphKiCpxTbhgDxlhBiraBTecQuxkagqkXyUHaLewNOCSlNBoySRBoVEe"
+        },
+        {
+            "random_string": "RyABwQzgUcwhbDyKgqEymPWNrbftZKhQKjrJZQPvvNCwqCIZvnxHcVuVXzoWjvMwEFffXUcsIgqAJZzemznQuHnTIBPSy"
+        },
+        {
+            "random_string": "QNRwzMBiAEELjncFuFUZxKQYqnyCjpPCFiAGUD"
+        },
+        {
+            "random_string": "aDCUmTtCvjBqnAhukMVAqiANRAEGCmYCPAYDVTH"
+        },
+        {
+            "random_string": "lMXUmtpMDAdQMHYjqQjgfSkVpVJBwwfjKEdWXUkdXovJxtuqLEwtYGQndzOzVvkFZoezKoeHezreuLu"
+        }
     ]
 }

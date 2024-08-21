@@ -1,0 +1,11 @@
+{
+    "thread_num": 1,
+    "thread": [
+        {
+            "name": "sub_thread"
+        }
+    ],
+    "reload": {
+        "repeat": 10
+    }
+}
