@@ -4,6 +4,7 @@
 #include<string.h>
 #include<stdlib.h>
 #include<stdio.h>
+#include<singal.h>
 
 // 1. Json 파일을 읽어서 구조체에 저장
 // 2. 스레드 요구사항에 따라서 생성
@@ -26,6 +27,7 @@ typedef struct _THREAD
 typedef struct _JSON_MESSAGE
 {
     int repeat_cnt;
+    int reload_repeat_cnt;
     int thread_num;
     thread_t* threadList;		
 }json_t;
@@ -39,15 +41,30 @@ typedef struct _REPORT
     char** randomStringArray;
 }report_t;
 
+// signal handler 함수에서도 사용할 수 있도록 전역변수 선언.
+json_t jt;
+int signal_flag = -1; 
+
 void generate_random_string(char** tr);
 void create_threads(json_t* j);
 void* thread_task(void* arg);
 void json_to_structure(json_t* j);
 void structure_to_json(report_t* rt);
+void sigint_handler(int sig);
+void sigusr1_handler(int sig);
 int main(void)
 {
     srand((unsigned int)time(NULL));
-    json_t jt;
+
+    signal(SIGINT, sigint_handler);
+    signal(SIGUSR1, sigusr1_handler);
+
+    while(1)
+    {
+        printf("signal 입력 대기중...\n");
+        sleap(1);// 1초 대기
+    }
+
 
     // 1. json에서 작업명세서 내용 파싱후 구조체에 저장.
     // 실패시 에러 메시지 출력후 프로그램 종료
@@ -60,6 +77,43 @@ int main(void)
     printf("전체 작업을 완료하였습니다.\n");
 
     return 0;
+}
+
+void sigint_handler(int sig)
+{
+    printf("json 출력 파일 생성중.... "):
+   
+    // signal 체크용 전역변수 
+    signal_flag = SIGINT;
+
+    // 1. json에서 작업명세서 내용 파싱후 구조체에 저장.
+    // 실패시 에러 메시지 출력후 프로그램 종료
+    json_to_structure(&jt);
+
+    // 2. thread 생성 및 관리 함수 
+    create_threads(&jt);
+
+    printf("json 파일 생성이 완료되었습니다. 3초 뒤에 프로그램을 종료합니다.\n");
+
+    for(int i = 3; i > 0 ; i--)
+    {
+        printf("%d 초\n", i);
+        sleep(1);
+    }
+    printf("프로그램 종료\n");
+    exit(0);
+    return;
+}
+
+void sigusr1_handler(int sig)
+{
+    // signal 체크용 전역변수
+    signal_flag = SIGUSR1;
+
+    // signal
+
+
+    return;
 }
 
 void create_threads(json_t* jt)
@@ -121,15 +175,23 @@ void json_to_structure(json_t* jt)
     JSON_Object *rootObject;
 
     /* 초기화 */
-    rootValue = json_parse_file("jparser2.json");      // JSON 파일을 읽어서 파싱 
+    rootValue = json_parse_file("jparser_sig.json");      // JSON 파일을 읽어서 파싱 
     rootObject = json_value_get_object(rootValue);    // JSON_Value에서 JSON_Object를 얻음.
 
     // repeat, thread_num 가져오기
     int repeat_cnt = (int)json_object_get_number(rootObject, "repeat");
+    
     int thread_num = (int)json_object_get_number(rootObject, "thread_num");
+    
+    // reload의 repeat 가져오기
+        // 1. "reload" 객체를 가져옴
+    JSON_Object *reload_object = json_object_get_object(root_object, "reload"); 
+        // 2. "repeat" 값 추출
+    int reload_repeat_cnt = (int)json_object_get_number(reload_object, "repeat");
 
-    printf("repeat: %d\n", repeat_cnt);
-    printf("thread_num: %d\n", thread_num);
+
+//    printf("repeat: %d\n", repeat_cnt);
+//    printf("thread_num: %d\n", thread_num);
 
 
     if(thread_num < 1)
@@ -150,6 +212,7 @@ void json_to_structure(json_t* jt)
 
     //===================== 1. 구조체에 저장========================//
     jt->repeat_cnt = repeat_cnt;
+    jt->reload_repeat_cnt = reload_repeat_cnt;
     jt->thread_num = thread_num;
     jt->threadList = (thread_t*)malloc(sizeof(thread_t)*thread_num);
 
@@ -197,7 +260,14 @@ void structure_to_json(report_t* rt)
     root_object = json_value_get_object(root_value);    // JSON_Value에서 JSON_Object를 얻음
 
     // "repeat_cnt" 설정
-    int repeat_cnt = rt->repeat_cnt;
+    // SIGINT 일때
+    if(signal_flag == SIGINT)
+        int repeat_cnt = rt->repeat_cnt;
+    
+    // SIGUSR1 일때
+    if(signal_flag == SIGUSR1)
+        int repeat_cnt = rt->reload_repeat_cnt;
+
     json_object_set_number(root_object, "repeat_cnt", repeat_cnt);
 
     // "repeat" 배열 생성
