@@ -1,9 +1,15 @@
 {
     "repeat": 10,
-    "thread_num": 1,
+    "thread_num": 3,
     "thread": [
         {
-            "name": "sub_thread"
+            "name": "111sub_thread111"
+        },
+        {
+            "name": "222sub_thread222"
+        },
+        {
+            "name": "333sub_thread333"
         }
     ],
     "reload": {

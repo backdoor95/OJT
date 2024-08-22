@@ -125,6 +125,9 @@ void create_threads(json_t* jt)
 {
     int thread_cnt = jt->thread_num;
     int repeat_cnt = jt->repeat_cnt;
+    
+    printf("thread_cnt = %d\n", thread_cnt);
+    printf("repeat_cnt = %d\n", repeat_cnt);
 
     // thread 메모리 할당.
     pthread_t* threads = (pthread_t*)malloc(sizeof(pthread_t) * thread_cnt);
