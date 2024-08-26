@@ -2,11 +2,6 @@
 #include<stdlib.h>
 #include<string.h>
 
-
-
-const int hash_table_size = 31;
-
-
 // -------------[설계]-------------
 // 해시테이블 = 해시함수 + 버켓배열
 // 해시함수 = 해시 코드맵 + 압축맵
@@ -51,15 +46,29 @@ const int hash_table_size = 31;
 //  --- lf > 1 : 작동하지만 비효율적
 //  --- lf < 1 : (기왕이면 0.75 미만이면), O(1) 기대실행시간 성취가능.
 // 2. 재해싱 
-//  - 해시테이블의 적재율을 상수(0.75)이하로 유지하기 위해서 원소를 삽입할 떄마다. 이 한계를 넘기지 않기 위해 추가작업필요.
+//  [1] 해시테이블의 적재율을 상수(0.75)이하로 유지하기 위해서 원소를 삽입할 떄마다. 이 한계를 넘기지 않기 위해 추가작업필요.
 //  - when 재해싱?
 //  ----- 1) 적재율의 최적치를 초과했을때 
 //  ----- 2) 원소 삽입에 실패했을 경우 ---> 예외 처리 필요
 //  ----- 3) 너무 많은 비활성 셀들로 포화되어 성능이 저하되었을 때. 
-// 3. 재해싱의 단계
+//  [2] 재해싱의 단계
 //------- 1) 버켓 배열의 크기를 증가 ( 원래 배열의 2배 크기로, 이때 소수로 설정할것)
 //------- 2) 새 크기에 대응하도록 압축맵 수정.
 //------- 3) 새 압축맵을 사용하여, 기존 해시테이블의 모든 원소들을 새 테이블에 삽입. 
+
+
+
+// 필요한 함수
+// Q1. 해시 코드맵
+// A1) polynomial accumulation 사용
+// Q2. 압축맵
+// A2) 1. 나누기 | 2. 승합제
+// Q3. 분리연쇄법 알고리즘에 필요한 함수
+// A3) 1. 
+
+
+const int Z = 33;
+const int BUCKET_SIZE = 31;
 
 typedef struct linked_list
 {
@@ -74,6 +83,59 @@ typedef struct hash_table
     int list_entry;
 }hash_table_t;
 
+void init_bucket_array(hash_table_t *ht)
+{
+
+
+}
+
+// 해시 함수 = 해시코드맵 + 압축맵
+
+// 해시코드맵 : keys -> integers
+int hash_code_map(char* key)
+{
+    int integers = 0;
+    
+    // 다항누적
+    for(int i = 0; i < strlen(key); i++)
+    {
+        integers = integers * Z + key[i];
+    }
+
+    return integers;
+}
+
+// 압축맵 : integers -> [0, BUCKET_SIZE-1] 인덱스화
+int compression_map(int integers)
+{
+    int M = BUCKET_SIZE;
+    if( integers < 0 )
+        integers = integers * -1;
+
+    // 1. 나누기
+    // |k|%M
+   // int index = integers % M;
+   // return index;
+
+    // 2. 승합제
+    // |ak + b| % M
+    // a%M != 0 이여야 한다. 아니면 모든 정수가 동일한 값 b로 매핑됨.
+    int a = 13;
+    int b = 17;
+
+    int index = (a*integers + b)%M;
+    return index;
+}
+
+
+
+int hash_function(char* key)
+{
+   int integers = hash_code_map(key);
+   return compression_map(integers);
+}
+
+
 int main(void)
 {
 
@@ -82,6 +144,17 @@ int main(void)
     {
         error("file 열기 실패\n");
         return exit(1);
+    }
+
+   // bucket 배열 size = 31
+     
+    
+    
+    
+    char line[256];
+    while(fgets(line, sizeof(line), file))
+    {
+        
     }
 
     
