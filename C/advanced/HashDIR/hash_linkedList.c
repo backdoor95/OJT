@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<stdbool.h>
 
 // -------------[설계]-------------
 // 해시테이블 = 해시함수 + 버켓배열
@@ -66,47 +67,62 @@
 // Q3. 분리연쇄법 알고리즘에 필요한 함수
 // A3) 1. 
 
-
+// 해시코드맵에 사용될 고정값
 const int Z = 33;
+// 해시테이블 배열의 크기
 const int BUCKET_SIZE = 31;
 
-typedef struct linked_list
+typedef struct hash_node
 {
     char* hash_key;
     char* data;
-    struct linked_list *next;
-}linked_list_t;
+    struct hash_node* next;
+}hash_node_t;
 
 typedef struct hash_table
 {
-    struct linked_list *head;
-    int list_entry;
+    struct hash_node* head;
+    bool active_cell;
+    int node_cnt;
 }hash_table_t;
 
-void init_bucket_array(hash_table_t *ht)
+hash_table_t* init_bucket_array()
 {
-
-
+    hash_table_t* ht = (hash_table_t*)malloc(sizeof(hash_table_t)*BUCKET_SIZE);
+    for(int i = 0; i < BUCKET_SIZE; i++)
+    {
+        ht[i].head = NULL;
+        ht[i].active_cell = false;
+        ht[i].node_cnt = 0;
+    }
+    return ht;
 }
 
 // 해시 함수 = 해시코드맵 + 압축맵
 
 // 해시코드맵 : keys -> integers
-int hash_code_map(char* key)
+unsigned long hash_code_map(char* key)
 {
-    int integers = 0;
-    
+    unsigned long integers = 0;
+    printf("key = %s, key의 길이 = %d\n", key, strlen(key)); 
     // 다항누적
     for(int i = 0; i < strlen(key); i++)
-    {
-        integers = integers * Z + key[i];
+    { //  여기서 오버플로우가 자주 발생하므로 모듈로연산자를 통해서 해결하였다.
+        // 버킷 사이즈(31) : 활성(22) 비활성(9)
+        // 41 : 활성(23) 비활성(8)
+        // 37 : 활성(25) 비활성(6)
+        // 47 : 활성(22) 비활성 (9)
+        // 43 : 24 7
+        // 29 : 22 9  
+        integers = (integers * Z + key[i]) % 37;
+        integers = (integers * Z + key[i]) % 37;
     }
-
+    printf("integers = %d\n", integers);
     return integers;
 }
 
 // 압축맵 : integers -> [0, BUCKET_SIZE-1] 인덱스화
-int compression_map(int integers)
+int compression_map(unsigned long integers)
 {
     int M = BUCKET_SIZE;
     if( integers < 0 )
@@ -120,8 +136,8 @@ int compression_map(int integers)
     // 2. 승합제
     // |ak + b| % M
     // a%M != 0 이여야 한다. 아니면 모든 정수가 동일한 값 b로 매핑됨.
-    int a = 13;
-    int b = 17;
+    unsigned long a = 11;
+    unsigned long b = 17;
 
     int index = (a*integers + b)%M;
     return index;
@@ -131,36 +147,97 @@ int compression_map(int integers)
 
 int hash_function(char* key)
 {
-   int integers = hash_code_map(key);
-   return compression_map(integers);
+    int integers = hash_code_map(key);
+    return compression_map(integers);
 }
 
+void insert_hash_node(hash_table_t* hash_array, char* key, char* data)
+{
+    hash_node_t* new_node = (hash_node_t*)malloc(sizeof(hash_node_t));
+    new_node->hash_key = (char*)malloc(sizeof(char)*(strlen(key)+1));
+    new_node->data = (char*)malloc(sizeof(char)*(strlen(data)+1));
+    strcpy(new_node->hash_key, key);
+    strcpy(new_node->data, data);
+
+    int index = hash_function(key);
+    printf("index = %d, key = %s\n", index, key); 
+    if(hash_array[index].active_cell == false)
+    {
+        hash_array[index].active_cell = true;
+    }
+    new_node->next = hash_array[index].head;
+    hash_array[index].head = new_node;
+    hash_array[index].node_cnt += 1; // 노드 개수 증가
+}
 
 int main(void)
 {
-
     FILE *file = fopen("hash.csv", "r");
     if(file == NULL)
     {
-        error("file 열기 실패\n");
-        return exit(1);
+        perror("file 열기 실패\n");
+        fclose(file);
+        exit(1);
     }
 
    // bucket 배열 size = 31
-     
+    hash_table_t* hash_array = init_bucket_array();    
+    printf("bucket 생성완\n"); 
     
+    char* line = NULL; // 문자열을 가리키는 포인터
+    size_t len = 0; // line 포인터가 가리키는 메모리의 크기를 저장하는 변수
+    ssize_t read; // getline 함수가 읽어온 줄의 길이를 저장하는 변수
     
+    while ((read = getline(&line, &len, file)) != -1) {
+        line[strcspn(line, "\n")] = 0; // 개행 문자 제거
+
+        char* key = strtok(line, ","); // key 가져옴.
+        char* data = strtok(NULL, ",");// data 가져옴.
+        insert_hash_node(hash_array, key, data);
+    }
     
-    char line[256];
-    while(fgets(line, sizeof(line), file))
+    printf("getline 완료\n");
+
+    // 결과 파일 만들기. 
+    FILE* result_file = fopen("hash_result.txt", "w");
+    if(result_file == NULL)
     {
-        
+        perror("hash_result file 생성 실패\n");
+        fclose(result_file);
+        exit(1);
     }
 
+    for(int i = 0; i < BUCKET_SIZE; i++)
+    {
+        int node_cnt = hash_array[i].node_cnt;
+        fprintf(result_file, "hash_array[%d], node_cnt = %d\n", i, hash_array[i].node_cnt);
+        hash_node_t *current = hash_array[i].head;
+
+        while(current != NULL)
+        {
+            fprintf(result_file, "%s -> ", current->hash_key);
+            current = current->next;
+        }
+        fprintf(result_file, "NULL\n\n");
+
+    }
+    int active = 0;
+    int inactive = 0;
     
+    for(int i = 0; i < BUCKET_SIZE; i++)
+    {
+        if(hash_array[i].active_cell == true)
+            active++;
+        else
+            inactive++;
+    }
+    fprintf(result_file, "활성셸 수 = %d, 비활성셸 수 = %d\n", active, inactive);
 
+    printf("파일 생성완료\n");
 
-
+    free(line);// while 루프가 끝난 후 , 메모리 해제
+    fclose(file);// 파일 닫기.
+    fclose(result_file);
     return 0;
 }
     

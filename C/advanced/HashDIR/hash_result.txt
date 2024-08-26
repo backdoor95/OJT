@@ -1,0 +1,94 @@
+hash_array[0], node_cnt = 1
+YlFMohV -> NULL
+
+hash_array[1], node_cnt = 2
+VP5pwSD -> AXEYIVa -> NULL
+
+hash_array[2], node_cnt = 0
+NULL
+
+hash_array[3], node_cnt = 1
+25srvmC -> NULL
+
+hash_array[4], node_cnt = 4
+9BgtHr6 -> tMYI5CN -> h8XVJ0N -> ErMUwm7 -> NULL
+
+hash_array[5], node_cnt = 1
+ypHRBy8 -> NULL
+
+hash_array[6], node_cnt = 2
+pXqlt9W -> 9gtGnbF -> NULL
+
+hash_array[7], node_cnt = 2
+HKT3AcK -> AgleP7w -> NULL
+
+hash_array[8], node_cnt = 3
+3aQQING -> Ch795EE -> hFAUWkY -> NULL
+
+hash_array[9], node_cnt = 3
+vnILHWR -> BEqCIMi -> Y4RtEJj -> NULL
+
+hash_array[10], node_cnt = 2
+anAAslZ -> bmWhm0h -> NULL
+
+hash_array[11], node_cnt = 2
+Cym7yPP -> 9TnGThJ -> NULL
+
+hash_array[12], node_cnt = 0
+NULL
+
+hash_array[13], node_cnt = 2
+ZvJaa4f -> TZ4kKJ3 -> NULL
+
+hash_array[14], node_cnt = 0
+NULL
+
+hash_array[15], node_cnt = 0
+NULL
+
+hash_array[16], node_cnt = 1
+KCOIQUC -> NULL
+
+hash_array[17], node_cnt = 6
+Z6iToJH -> sNexWOY -> hdg781Y -> I340WgG -> gLIBifd -> A3s0EzM -> NULL
+
+hash_array[18], node_cnt = 1
+ioX8nxY -> NULL
+
+hash_array[19], node_cnt = 1
+joJDHlc -> NULL
+
+hash_array[20], node_cnt = 0
+NULL
+
+hash_array[21], node_cnt = 1
+sttUIFN -> NULL
+
+hash_array[22], node_cnt = 2
+3ftHbgU -> h1Oh1Fq -> NULL
+
+hash_array[23], node_cnt = 2
+lm9Cc2I -> OW6qAy3 -> NULL
+
+hash_array[24], node_cnt = 2
+W67hIAN -> NTbV8Jd -> NULL
+
+hash_array[25], node_cnt = 0
+NULL
+
+hash_array[26], node_cnt = 1
+RVasdnc -> NULL
+
+hash_array[27], node_cnt = 1
+Yhx7gQ9 -> NULL
+
+hash_array[28], node_cnt = 2
+RgHmpfR -> MgDqtos -> NULL
+
+hash_array[29], node_cnt = 3
+8PIwNAQ -> nRo5xnF -> 3ik2Fcs -> NULL
+
+hash_array[30], node_cnt = 2
+Nhjg2bp -> uXWjPJp -> NULL
+
+활성셸 수 = 25, 비활성셸 수 = 6
