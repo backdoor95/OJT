@@ -56,23 +56,31 @@ void sigusr1_handler(int sig);
 int main(void)
 {
     srand((unsigned int)time(NULL));
-    
+
+    // 1. json에서 작업명세서 내용 파싱후 구조체에 저장.
+    // 실패시 에러 메시지 출력후 프로그램 종료
+    json_to_structure(&jt);
+
+
     printf("Process ID : %d\n", getpid());
 
     printf("signal 입력 대기중...\n");
 
     signal(SIGINT, sigint_handler);
     signal(SIGUSR1, sigusr1_handler);
-
+    // json read -> 스레드 생성 ( main 함수안에)
+    /// output.json file 통일
+    ///  
     while(1)
     {
-       // printf("signal 입력 대기중...\n");
+        // printf("signal 입력 대기중...\n");
         sleep(1);// 1초 대기
     }
 
     return 0;
 }
 
+// 처음 코드 작성할때 시그널 함수로 인자를 넘겨주고 싶었으나. 그러지 못함...
 void sigint_handler(int sig)
 {
     printf("\n json 출력 파일 생성중....\n ");
@@ -81,11 +89,6 @@ void sigint_handler(int sig)
     {    
         // signal 체크용 전역변수 
         signal_flag = SIGINT;
-
-        // 1. json에서 작업명세서 내용 파싱후 구조체에 저장.
-        // 실패시 에러 메시지 출력후 프로그램 종료
-        json_to_structure(&jt);
-
         // 2. thread 생성 및 관리 함수 
         create_threads(&jt);
     }
@@ -107,14 +110,10 @@ void sigusr1_handler(int sig)
     // signal 체크용 전역변수
     signal_flag = SIGUSR1;
 
-    // 1. json에서 작업명세서 내용 파싱후 구조체에 저장.
-    // 실패시 에러 메시지 출력후 프로그램 종료
-    json_to_structure(&jt);
-
-    // 2. thread 생성 및 관리 함수 
+    // 1. thread 생성 및 관리 함수 
     create_threads(&jt);
 
-    // 3. SIGUSR1은 종료하는 기능이 없으므로 SIGINT로 메시지를 유도하거나 다시 시도권유
+    // 2. SIGUSR1은 종료하는 기능이 없으므로 SIGINT로 메시지를 유도하거나 다시 시도권유
     printf("SIGUSR1 명령을 수행하여 수정된 repeat 값으로 새로운 json file를 생성하였습니다.\n");
     printf("프로그램을 종료 = 시그널 SIGINT 입력 \n");
     printf("새로운 repeat 값으로 다시 새로운 json file를 생성 = 시그널 SIGUSR1 입력\n");
