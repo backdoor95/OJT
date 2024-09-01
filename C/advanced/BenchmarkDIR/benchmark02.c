@@ -6,11 +6,15 @@
 #include<unistd.h>
 #include<stdatomic.h>
 #include<signal.h>
+#include<semaphore.h>
 
 const int NUM_THREADS = 8;
 const int WORK_QUOTA = 2000000000;
 __thread long long tls_var = 0;
 atomic_long atomic_shared_var = 0;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;// mutex
+pthread_spinlock_t spin_lock;// spinlock
+sem_t sem; // 세마포어
 
 
 bool stop = false;
@@ -34,6 +38,18 @@ void tls_func();
 void atomic_shared_func();
 void* atomic_shared_worker_task(void* arg);
 void* atomic_shared_boss_task(void* arg);
+void atomic_local_func();
+void* atomic_local_worker_task(void* arg);
+void* atomic_local_boss_task(void* arg);
+void mutex_func();
+void* mutex_worker_task(void* arg);
+void* mutex_boss_task(void* arg);
+void semaphore_func();
+void* semaphore_worker_task(void* arg);
+void* semaphore_boss_task(void* arg);
+void spinlock_func();
+void* spinlock_worker_task(void* arg);
+void* spinlock_boss_task(void* arg);
 
 int main()
 {
@@ -42,11 +58,19 @@ int main()
     // 2
     //local_func();
     // 3
-    tls_func();
+    //tls_func();
     // 4
     //atomic_shared_func();
-
-
+    // 5
+    //atomic_local_func();
+    // 6 mutext는 정적 초기화를 함. PHTREAD_MUTEX_INITIALIZER
+    //mutex_func();
+    // 7
+    //sem_init(&sem, 0, 1);
+    //semaphore_func();
+    // 8
+    pthread_spin_init(&spin_lock,0);
+    spinlock_func();
     return 0;
     
 }
@@ -362,32 +386,212 @@ void atomic_local_func()
 
 }
 
-void* atomic_shared_worker_task(void* arg)
+void* atomic_local_worker_task(void* arg)
 {
     int thread_id = *((int*)arg);
+    atomic_long atomic_local_var = 0;
+    
     while(1)
     { 
-        atomic_shared_var++;
-        //if(atomic_shared_var++ >= global_goal)
-            //break;
+        report[thread_id*8] = ++atomic_local_var;
     }
-    //stop = true;
     free(arg);
     pthread_exit(0);
 }
 
-void* atomic_shared_boss_task(void* arg)
+void* atomic_local_boss_task(void* arg)
 {
     while(1)
     {
         sleep(1);
         runtime_check++;
-        printf("atomic_local_var = %ld\n", atomic_shared_var);
+        show_report();
     }
-    free(arg);
     pthread_exit(0);
 }
 
+void mutex_func()
+{
+    printf("===========================[mutex var]=================================");
+    printf("\n\n\n");
+    // 원하는 스레드 개수만큼 메모리 할당.
+    pthread_t* worker_threads = (pthread_t*)malloc(sizeof(pthread_t) * NUM_THREADS);
+    for(int i = 0; i < NUM_THREADS; i++)
+    {
+        if(pthread_create(&worker_threads[i], NULL, mutex_worker_task, NULL))
+        {
+            printf("스레드 생성 실패!!!\n");
+            exit(1);
+        }
+    }
+    //int count = 0;
+    signal(SIGINT, sigint_handler);
+    pthread_t boss_thread;
+    pthread_create(&boss_thread, NULL, mutex_boss_task, NULL);
+    //while(1)
+    //{
+    //    sleep(1);
+    //    printf("global_var : %lld\n", global_count);
+    //    runtime_check++;
+    //}
+    //printf("running time : %d\n", count);
+    // 완료 될 때까지 대기.
+
+    pthread_join(boss_thread, NULL);
+    for( int i = 0 ; i < NUM_THREADS ; i++ )
+    {
+        pthread_join(worker_threads[i], NULL);
+    }
+
+    free(worker_threads);
+    global_count = 0;
+    stop = false;
+    printf("===================================================================================");
+    printf("\n\n\n");
+}
+
+void* mutex_worker_task(void* arg)
+{
+    while(1)// while(1)
+    {
+        pthread_mutex_lock(&mutex); 
+        global_count++;
+        pthread_mutex_unlock(&mutex);
+    }
+    pthread_exit(0);
+}
+
+void* mutex_boss_task(void* arg)
+{
+    while(1)
+    {
+        sleep(1);
+        runtime_check++;
+        printf("global_count : %lld\n", global_count);
+    }
+    pthread_exit(0);
+}
+
+void semaphore_func()
+{
+    printf("===========================[semaphore var]=================================");
+    printf("\n\n\n");
+    // 원하는 스레드 개수만큼 메모리 할당.
+    pthread_t* worker_threads = (pthread_t*)malloc(sizeof(pthread_t) * NUM_THREADS);
+    for(int i = 0; i < NUM_THREADS; i++)
+    {
+        if(pthread_create(&worker_threads[i], NULL, semaphore_worker_task, NULL))
+        {
+            printf("스레드 생성 실패!!!\n");
+            exit(1);
+        }
+    }
+    //int count = 0;
+    signal(SIGINT, sigint_handler);
+    pthread_t boss_thread;
+    pthread_create(&boss_thread, NULL, semaphore_boss_task, NULL);
+    //while(1)
+    //{
+    //    sleep(1);
+    //    printf("global_var : %lld\n", global_count);
+    //    runtime_check++;
+    //}
+    //printf("running time : %d\n", count);
+    // 완료 될 때까지 대기.
+
+    pthread_join(boss_thread, NULL);
+    for( int i = 0 ; i < NUM_THREADS ; i++ )
+    {
+        pthread_join(worker_threads[i], NULL);
+    }
+
+    free(worker_threads);
+    global_count = 0;
+    stop = false;
+    printf("===================================================================================");
+    printf("\n\n\n");
+}
+
+void* semaphore_worker_task(void* arg)
+{
+    while(1)
+    {
+        sem_wait(&sem);
+        global_count++;
+        sem_post(&sem);
+    }
+    pthread_exit(0);
+}
+
+void* semaphore_boss_task(void* arg)
+{
+    while(1)
+    {
+        sleep(1);
+        runtime_check++;
+        printf("global_count : %lld\n", global_count);
+    }
+}
+
+void spinlock_func()
+{
+    printf("===========================[spin var]=================================");
+    printf("\n\n\n");
+    // 원하는 스레드 개수만큼 메모리 할당.
+    pthread_t* worker_threads = (pthread_t*)malloc(sizeof(pthread_t) * NUM_THREADS);
+    for(int i = 0; i < NUM_THREADS; i++)
+    {
+        if(pthread_create(&worker_threads[i], NULL, spinlock_worker_task, NULL))
+        {
+            printf("스레드 생성 실패!!!\n");
+            exit(1);
+        }
+    }
+    signal(SIGINT, sigint_handler);
+    pthread_t boss_thread;
+    pthread_create(&boss_thread, NULL, spinlock_boss_task, NULL);
+    //while(1)
+    //{
+    //    sleep(1);
+    //    printf("global_var : %lld\n", global_count);
+    //    runtime_check++;
+    //}
+    //printf("running time : %d\n", count);
+    // 완료 될 때까지 대기.
+
+    pthread_join(boss_thread, NULL);
+    for( int i = 0 ; i < NUM_THREADS ; i++ )
+    {
+        pthread_join(worker_threads[i], NULL);
+    }
+
+    free(worker_threads);
+    global_count = 0;
+    stop = false;
+    printf("===================================================================================");
+    printf("\n\n\n");
+}
+
+void* spinlock_worker_task(void* arg)
+{
+    while(1)
+    {
+       pthread_spin_lock(&spin_lock);
+       global_count++;
+       pthread_spin_unlock(&spin_lock); 
+    }
+    pthread_exit(0);    
+}
+
+void* spinlock_boss_task(void* arg)
+{
+    while(1)
+    {
+        sleep(1);
+        runtime_check++;
+        printf("global_count : %lld\n", global_count);
+    }
+}
 
 void show_report()
 {
