@@ -1,5 +1,4 @@
-#include"parson.h"
-#include<time.h>
+#include"parson.h" #include<time.h>
 #include<pthread.h>
 #include<string.h>
 #include<stdlib.h>
@@ -27,7 +26,7 @@ typedef struct _JSON_MESSAGE
 {
     int repeat_cnt;
     int thread_num;
-    thread_t* threadList;		
+    thread_t* threadList;// char* name[]		
 }json_t;
 
 // 굳이 report 구조체가 필요하나
@@ -92,6 +91,7 @@ void* thread_task(void* arg)
 {
     thread_t* worker_thread = (thread_t*)arg;
     
+    // jt -> 
     report_t rt;
     rt.thread_name = worker_thread->name;
     rt.repeat_cnt = worker_thread->repeat_cnt;

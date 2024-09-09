@@ -59,8 +59,11 @@ int main(void)
 
     // 1. json에서 작업명세서 내용 파싱후 구조체에 저장.
     // 실패시 에러 메시지 출력후 프로그램 종료
+    // json read => 스레드 생성
     json_to_structure(&jt);
 
+    // 2. thread를 생성.
+    create_threads(&jt);
 
     printf("Process ID : %d\n", getpid());
 
@@ -68,8 +71,9 @@ int main(void)
 
     signal(SIGINT, sigint_handler);
     signal(SIGUSR1, sigusr1_handler);
-    // json read -> 스레드 생성 ( main 함수안에)
-    /// output.json file 통일
+    //1. json read -> 스레드 생성 ( main 함수안에)
+    
+    // output.json file 통일
     ///  
     while(1)
     {

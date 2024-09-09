@@ -8,9 +8,11 @@
 #include<signal.h>
 #include<semaphore.h>
 
-const int NUM_THREADS = 8;
+#define NUM_THREADS 8
 const int WORK_QUOTA = 2000000000;
+
 __thread long long tls_var = 0;
+__thread long long tls_report_array[NUM_THREADS];
 atomic_long atomic_shared_var = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;// mutex
 pthread_spinlock_t spin_lock;// spinlock
@@ -50,6 +52,11 @@ void* semaphore_boss_task(void* arg);
 void spinlock_func();
 void* spinlock_worker_task(void* arg);
 void* spinlock_boss_task(void* arg);
+void tls_array_func();
+void* tls_array_worker_task(void* arg);
+void* tls_array_boss_task(void* arg);
+
+
 
 int main()
 {
@@ -64,13 +71,17 @@ int main()
     // 5
     //atomic_local_func();
     // 6 mutext는 정적 초기화를 함. PHTREAD_MUTEX_INITIALIZER
-    //mutex_func();
+    mutex_func();
     // 7
     //sem_init(&sem, 0, 1);
     //semaphore_func();
     // 8
-    pthread_spin_init(&spin_lock,0);
-    spinlock_func();
+    //pthread_spin_init(&spin_lock,0);
+    //spinlock_func();
+    //pthread_spin_destroy(&spin_lock);
+    // 9
+    //tls_array_func();
+    
     return 0;
     
 }
@@ -591,6 +602,65 @@ void* spinlock_boss_task(void* arg)
         runtime_check++;
         printf("global_count : %lld\n", global_count);
     }
+}
+
+void tls_array_func()
+{
+
+    printf("===========================[tls var and tls array]=================================");
+    printf("\n\n\n");
+    // 원하는 스레드 개수만큼 메모리 할당.
+    pthread_t* worker_threads = (pthread_t*)malloc(sizeof(pthread_t) * NUM_THREADS);
+    for(int i = 0; i < NUM_THREADS; i++)
+    {
+        int* thread_id = (int*)malloc(sizeof(int));
+        *thread_id = i;
+        if(pthread_create(&worker_threads[i], NULL, tls_array_worker_task, thread_id))
+        {
+            printf("worker thread 생성 실패!!!\n");
+            exit(1);
+        }
+    }
+    
+    signal(SIGINT, sigint_handler);
+
+    pthread_t boss_thread;
+    if(pthread_create(&boss_thread, NULL, tls_array_boss_task, NULL))
+    {
+        printf("boss thread 생성 실패\n");
+        exit(1);
+    }
+   // 완료 될 때까지 대기.
+    pthread_join(boss_thread, NULL);
+    for( int i = 0 ; i < NUM_THREADS ; i++ )
+    {
+        pthread_join(worker_threads[i], NULL);
+    }
+
+    free(worker_threads);
+    //stop = false;
+    printf("===================================================================================");
+    printf("\n\n\n");
+
+
+
+}
+
+void* tls_array_worker_task(void* arg)
+{
+    int thread_id = *((int*)arg);
+    int index = thread_id * 8;
+    while(1)
+    {
+       report[index] = ++(tls_var);
+    }
+    free(arg);
+    pthread_exit(0);
+}
+
+void* tls_array_boss_task(void* arg)
+{
+
 }
 
 void show_report()

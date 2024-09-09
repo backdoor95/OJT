@@ -104,7 +104,7 @@ hash_table_t* init_bucket_array()
 unsigned long hash_code_map(char* key)
 {
     unsigned long integers = 0;
-    printf("key = %s, key의 길이 = %d\n", key, strlen(key)); 
+    printf("key = %s, key의 길이 = %ld\n", key, strlen(key)); 
     // 다항누적
     for(int i = 0; i < strlen(key); i++)
     { //  여기서 오버플로우가 자주 발생하므로 모듈로연산자를 통해서 해결하였다.
@@ -117,7 +117,7 @@ unsigned long hash_code_map(char* key)
         integers = (integers * Z + key[i]) % 37;
         integers = (integers * Z + key[i]) % 37;
     }
-    printf("integers = %d\n", integers);
+    printf("integers = %ld\n", integers);
     return integers;
 }
 
@@ -154,9 +154,9 @@ int hash_function(char* key)
 void insert_hash_node(hash_table_t* hash_array, char* key, char* data)
 {
     hash_node_t* new_node = (hash_node_t*)malloc(sizeof(hash_node_t));
-    new_node->hash_key = (char*)malloc(sizeof(char)*(strlen(key)+1));
-    new_node->data = (char*)malloc(sizeof(char)*(strlen(data)+1));
-    strcpy(new_node->hash_key, key);
+    new_node->hash_key = (char*)malloc(sizeof(char)*(strlen(key))+1);
+    new_node->data = (char*)malloc(sizeof(char)*(strlen(data))+1);
+    strcpy(new_node->hash_key, key);// strncpy 
     strcpy(new_node->data, data);
 
     int index = hash_function(key);
